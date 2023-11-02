@@ -1,17 +1,23 @@
 const { CorrectResponse, ErrorOccur } = require('../Helper/respose');
-const { RegisterUser } = require('../Helper/validation');
 const jwt = require('jsonwebtoken');
 const bcrypt = require("bcrypt");
 const { User } = require('../Models/Register.Model');
+const { RegisterUser } = require('../Helper/validation');
 
 
 const image_url = process.env.IMAGE_URL
 const secretKey = process.env.SECREAT_KEY;
 
+const hello = (req,res, next) => {
+    // console.log("f");
+    res.json({data:"Hello"});
+    next();
+}
+
 const Register = async (req, res, next) => {
     try {
         const { email, password } = req.body;
-        console.log("rffrdfvrdcfvd", req.body);
+        // console.log("rffrdfvrdcfvd", req.body);
         const existingUser = await User.findOne({ email });
 
         if (existingUser) {
@@ -23,7 +29,7 @@ const Register = async (req, res, next) => {
         // Construct the image URL
         const img = image_url + "src/IMG/profile/" + req.file.filename;
 
-        const ValidUser = await RegisterUserSchema.validateAsync(req.body);
+        const ValidUser = await RegisterUser.validateAsync(req.body);
 
         const NewUser = new User({
             firstName: ValidUser.firstName,
@@ -47,16 +53,11 @@ const Register = async (req, res, next) => {
 
 const Login = async (req, res, next) => {
     try {
-        // const { email, password } = req.body;
-        // console.log(  "effredfeds",req.body);
-        // const user = await User.findOne({email});
-        // console.log(user);
-
+        
         const { email } = req.body;
         const { password } = req.body;
         const user = await User.findOne({ email });
-        // const UserPass = await User.findOne({ password });
-
+     
         if (!user) {
             return res.status(400).json({ message: "User not found" });
         }
@@ -70,7 +71,7 @@ const Login = async (req, res, next) => {
         const token = jwt.sign({ memberData: user }, secretKey, { expiresIn: "1hr" });
 
         const decodeToken = jwt.decode(token);
-        console.log(decodeToken);
+        // console.log(decodeToken);
         res.json({
             tokenData: token,
             decodeTokenData: decodeToken
@@ -81,4 +82,7 @@ const Login = async (req, res, next) => {
     }
 }
 
-module.exports = { Register, Login };
+
+
+
+module.exports = { Register, Login, hello };
