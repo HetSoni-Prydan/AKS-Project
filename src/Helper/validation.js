@@ -3,18 +3,18 @@ const joi = require('@hapi/joi');
 const RegisterUser = joi.object({
 
     firstName: joi.
-        string(),
+        string().required(),
 
     lastName: joi.
         string(),
 
-    email: joi.string().email(),
+    email: joi.string().email().required(),
 
     password: joi.
-        string(),
+        string().required(),
 
     mobile: joi.
-        number(),
+        number().required(),
 
 });
 

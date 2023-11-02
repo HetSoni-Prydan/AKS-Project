@@ -9,20 +9,13 @@ const secretKey = process.env.SECREAT_KEY;
 const TokenVerify = async(req, res, next) => {
     try {
         
-    //    console.log("hello");
         let token = req.headers.authorization;
-        // token = req.cookies.jwt;
-        // console.log(token);
-    
+        
         token = token.split(" ")[1];
-        const VerifyUser = jwt.verify(token, secretKey,(err,decoded) => {
-            if(err) {
-                console.log(err); 
-            } 
-            // console.log(decoded);
-        });
+        const VerifyUser = await jwt.verify(token, secretKey);
+        // console.log(VerifyUser);
 
-        CorrectResponse(res,200,VerifyUser,"Data")
+       
         next();
 
     } catch (error) {

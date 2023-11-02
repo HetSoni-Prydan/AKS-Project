@@ -8,16 +8,10 @@ const { RegisterUser } = require('../Helper/validation');
 const image_url = process.env.IMAGE_URL
 const secretKey = process.env.SECREAT_KEY;
 
-const hello = (req,res, next) => {
-    // console.log("f");
-    res.json({data:"Hello"});
-    next();
-}
-
 const Register = async (req, res, next) => {
     try {
         const { email, password } = req.body;
-        // console.log("rffrdfvrdcfvd", req.body);
+        
         const existingUser = await User.findOne({ email });
 
         if (existingUser) {
@@ -40,10 +34,14 @@ const Register = async (req, res, next) => {
             profile: img,
         });
 
+        
+        
         const createUser = await NewUser.save();
-
-        // Assuming CorrectResponse and ErrorOccur functions are defined
-        CorrectResponse(res, 200, createUser, "User Successfully Registered");
+        
+        let token = await jwt.sign({memberData: ValidUser} , secretKey, {expiresIn: "2hr"});
+        
+        
+        CorrectResponse(res, 200, {createUser,token}, "User Successfully Registered");
     } catch (error) {
         // Handle errors appropriately, e.g., using your ErrorOccur function
         console.log(error);
@@ -82,7 +80,35 @@ const Login = async (req, res, next) => {
     }
 }
 
+const updateUser = async (req,res,next) => {
+    try {
+        
+        const UserId = req.params.id;
+        const UserData = req.body;
+
+        // console.log(req.file.filename);
 
 
+        if(req.file) {
+            UserData.profile = image_url + "src/IMG/profile/" + req.file.filename;
+        }
 
-module.exports = { Register, Login, hello };
+        const Updateuser = await User.findByIdAndUpdate(UserId , UserData , {new: true});
+
+        if(!Updateuser){
+            res.status(404).json({
+                message: "User Not Update",
+            });
+        }
+
+        CorrectResponse(res, 200, Updateuser, "User Update Successfuly");
+
+
+    } catch (error) {
+        ErrorOccur(res, "Not Update");
+        next();
+    }
+}
+
+
+module.exports = { Register, Login,updateUser };
